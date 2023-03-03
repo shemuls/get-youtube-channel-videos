@@ -6,26 +6,30 @@
     // Replace YOUR_CHANNEL_ID with your actual channel ID
     const channelId = 'yourChannelID';
 	  
-	  
 	const channelUrl = `https://www.googleapis.com/youtube/v3/channels?part=snippet,contentDetails&id=${channelId}&key=${apiKey}`;
 	  
 
-    const videosUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&maxResults=10&order=date&type=video&key=${apiKey}`;
-    fetch(channelUrl)
+    const videosUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&maxResults=4&order=date&type=video&key=${apiKey}`;
+    
+	let nextPageToken = null;
+	  
+function loadVideos() {
+	
+	 const url = nextPageToken ? `${videosUrl}&pageToken=${nextPageToken}` : videosUrl;
+	
+	 fetch(channelUrl)
       .then(response => response.json())
       .then(data => {
         const { title, thumbnails, customUrl } = data.items[0].snippet;
         const logoUrl = thumbnails.high.url;
         const channelUrl = customUrl ? `https://www.youtube.com/${customUrl}` : `https://www.youtube.com/channel/${channelId}`;
-
 		
 		
-		
-	  fetch(videosUrl)
+	  fetch(url)
       .then(response => response.json())
-      .then(data => {
+      .then(urlData => {
         const videosContainer = document.getElementById('s-videos-grid');
-        const videos = data.items;
+        const videos = urlData.items;
 
         videos.forEach(video => {
           const { videoId } = video.id;
@@ -36,8 +40,8 @@
 
           fetch(statsUrl)
             .then(response => response.json())
-            .then(data => {
-              const { viewCount, likeCount, dislikeCount, commentCount } = data.items[0].statistics;
+            .then(statsData => {
+              const { viewCount, likeCount, dislikeCount, commentCount } = statsData.items[0].statistics;
 			  
 			  // Calculate the time elapsed since the video was uploaded
               const uploadDate = new Date(publishedAt);
@@ -187,10 +191,23 @@
             })
             .catch(error => console.error(error));
         });
+		  nextPageToken = urlData.nextPageToken;
+		  const loadMoreButton = document.getElementById('s-video-load-more');
+		   if (nextPageToken) {
+            loadMoreButton.style.display = 'block';
+          } else {
+            loadMoreButton.style.display = 'none';
+          }
       })
       .catch(error => console.error(error));
 	  
 	  })
       .catch(error => console.error(error));
+	  
+	  }
+	  loadVideos();
+	  
+	  const loadMoreButton = document.getElementById('s-video-load-more');
+      loadMoreButton.addEventListener('click', loadVideos);
   </script>
 
