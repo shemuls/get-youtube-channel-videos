@@ -1,0 +1,196 @@
+<h1>Recent Videos from My Channel</h1>
+  <script>
+    // Replace YOUR_API_KEY with your actual API key
+    const apiKey = 'yourApiKey';
+
+    // Replace YOUR_CHANNEL_ID with your actual channel ID
+    const channelId = 'yourChannelID';
+	  
+	  
+	const channelUrl = `https://www.googleapis.com/youtube/v3/channels?part=snippet,contentDetails&id=${channelId}&key=${apiKey}`;
+	  
+
+    const videosUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&maxResults=10&order=date&type=video&key=${apiKey}`;
+    fetch(channelUrl)
+      .then(response => response.json())
+      .then(data => {
+        const { title, thumbnails, customUrl } = data.items[0].snippet;
+        const logoUrl = thumbnails.high.url;
+        const channelUrl = customUrl ? `https://www.youtube.com/${customUrl}` : `https://www.youtube.com/channel/${channelId}`;
+
+		
+		
+		
+	  fetch(videosUrl)
+      .then(response => response.json())
+      .then(data => {
+        const videosContainer = document.getElementById('s-videos-grid');
+        const videos = data.items;
+
+        videos.forEach(video => {
+          const { videoId } = video.id;
+          const { description, publishedAt } = video.snippet;
+          const thumbnailUrl = video.snippet.thumbnails.medium.url;
+
+          const statsUrl = `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${videoId}&key=${apiKey}`;
+
+          fetch(statsUrl)
+            .then(response => response.json())
+            .then(data => {
+              const { viewCount, likeCount, dislikeCount, commentCount } = data.items[0].statistics;
+			  
+			  // Calculate the time elapsed since the video was uploaded
+              const uploadDate = new Date(publishedAt);
+              const currentDate = new Date();
+              const elapsedMonths = (currentDate.getFullYear() - uploadDate.getFullYear()) * 12 + (currentDate.getMonth() - uploadDate.getMonth());
+
+              // Format the upload date as "x months ago"
+              const formattedDate = elapsedMonths === 1 ? '1 month ago' : `${elapsedMonths - 1} months ago`;
+			  
+
+              const videoElement = document.createElement('div');
+              videoElement.innerHTML = `
+
+
+
+	
+	<div id="div_block-298-150311" class="ct-div-block s-video-item">
+      <div id="div_block-299-150311" class="ct-div-block s-video-header">
+        <a
+          id="link-300-150311"
+          class="ct-link s-video-thumb-wrap glightbox-popup"
+          href="https://www.youtube.com/watch?v=${videoId}"
+          target="_self"
+        >
+			<img id="image-358-150311" alt="${title}" src="${thumbnailUrl}" class="ct-image s-video-thumb">
+	  	</a>
+        <div id="text_block-301-150311" class="ct-text-block s-video-desc">
+          ${description}
+        </div>
+      </div>
+      <div id="div_block-302-150311" class="ct-div-block s-video-footer">
+        <div
+          id="div_block-303-150311"
+          class="ct-div-block s-video-channel-info"
+        >
+          <div id="div_block-304-150311" class="ct-div-block s-video-channel">
+            <img
+              id="image-305-150311"
+              alt=""
+              src="${logoUrl}"
+              class="ct-image s-video-channel-logo"
+            />
+            <div
+              id="div_block-306-150311"
+              class="ct-div-block s-video-channel-text"
+            >
+				<a href="${channelUrl}" target="_blank">
+				  <h6
+					id="headline-307-150311"
+					class="ct-headline s-video-channel-name"
+				  >
+					${title}
+				  </h6>
+				</a>
+              <div
+                id="text_block-308-150311"
+                class="ct-text-block s-video-channel-date"
+              >
+                ${formattedDate}
+              </div>
+            </div>
+          </div>
+          <div
+            id="div_block-320-150311"
+            class="ct-div-block s-video-channel-icon"
+          ></div>
+        </div>
+        <div id="div_block-311-150311" class="ct-div-block s-video-stats">
+          <div
+            id="div_block-312-150311"
+            class="ct-div-block s-video-stats-item"
+          >
+            <img
+              id="image-313-150311"
+              alt=""
+              src="https://www.bodyshapestore.nl/wp-content/uploads/2023/03/y-eye.png"
+              class="ct-image s-video-stats-icon"
+            />
+            <div
+              id="text_block-314-150311"
+              class="ct-text-block s-video-stats-text"
+            >
+              ${viewCount}
+            </div>
+          </div>
+          <div
+            id="div_block-321-150311"
+            class="ct-div-block s-video-stats-item"
+          >
+            <img
+              id="image-322-150311"
+              alt=""
+              src="https://www.bodyshapestore.nl/wp-content/uploads/2023/03/y-heart.png"
+              class="ct-image s-video-stats-icon"
+            />
+            <div
+              id="text_block-323-150311"
+              class="ct-text-block s-video-stats-text"
+            >
+              ${likeCount || 0}
+            </div>
+          </div>
+          <div
+            id="div_block-324-150311"
+            class="ct-div-block s-video-stats-item"
+          >
+            <img
+              id="image-325-150311"
+              alt=""
+              src="https://www.bodyshapestore.nl/wp-content/uploads/2023/03/y-comment.png"
+              class="ct-image s-video-stats-icon"
+            />
+            <div
+              id="text_block-326-150311"
+              class="ct-text-block s-video-stats-text"
+            >
+              ${commentCount}
+            </div>
+          </div>
+          <div
+            id="div_block-327-150311"
+            class="ct-div-block s-video-stats-item"
+          >
+            <img
+              id="image-328-150311"
+              alt=""
+              src="https://www.bodyshapestore.nl/wp-content/uploads/2023/03/y-dislike.png"
+              class="ct-image s-video-stats-icon"
+            />
+            <div
+              id="text_block-329-150311"
+              class="ct-text-block s-video-stats-text"
+            >
+             ${dislikeCount || 0}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+
+                
+              `;
+              videosContainer.appendChild(videoElement);
+            })
+            .catch(error => console.error(error));
+        });
+      })
+      .catch(error => console.error(error));
+	  
+	  })
+      .catch(error => console.error(error));
+  </script>
+
